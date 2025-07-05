@@ -66,55 +66,67 @@ useEffect(() => {
   const completedCount = slots.filter(slot => slot.completed).length
 
   return (
-    <div className="min-h-screen bg-blue-50 p-6">
-      <div className="bg-white p-6 rounded-xl shadow-md max-w-3xl mx-auto">
-        <div className="flex justify-between mb-4">
-          <h2 className="text-xl font-bold">📅 Daily Planner</h2>
+    <div className="min-h-screen bg-blue-50 p-3 sm:p-6">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md max-w-3xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+          <h2 className="text-lg sm:text-xl font-bold">📅 Daily Planner</h2>
           <button
             onClick={() => setIsClearModalOpen(true)}
-            className="text-red-600 hover:text-red-800 flex items-center"
+            className="text-red-600 hover:text-red-800 flex items-center justify-center sm:justify-start text-sm sm:text-base"
           >
-            <TrashIcon className="h-5 w-5 mr-1" /> Clear All
+            <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" /> Clear All
           </button>
         </div>
 
-        <p className="text-sm mb-4 text-gray-600">✅ Completed: {completedCount} / {slots.length}</p>
+        <p className="text-xs sm:text-sm mb-4 text-gray-600">✅ Completed: {completedCount} / {slots.length}</p>
 
         {isClearModalOpen && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white p-4 rounded-lg w-96"
+              className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-sm"
             >
-              <h3 className="font-semibold text-lg">Clear All Tasks?</h3>
-              <p className="text-sm text-gray-600 my-2">This cannot be undone.</p>
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setIsClearModalOpen(false)} className="text-gray-500 px-3 py-1">Cancel</button>
-                <button onClick={clearAllTasks} className="bg-red-500 text-white px-3 py-1 rounded-md">Clear</button>
+              <h3 className="font-semibold text-base sm:text-lg">Clear All Tasks?</h3>
+              <p className="text-xs sm:text-sm text-gray-600 my-2">This cannot be undone.</p>
+              <div className="flex justify-end gap-2 mt-4">
+                <button 
+                  onClick={() => setIsClearModalOpen(false)} 
+                  className="text-gray-500 px-3 py-2 text-sm sm:text-base rounded-md hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={clearAllTasks} 
+                  className="bg-red-500 text-white px-3 py-2 rounded-md text-sm sm:text-base hover:bg-red-600"
+                >
+                  Clear
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        <ul className="space-y-2">
+        <ul className="space-y-3 sm:space-y-2">
           {slots.map((slot, i) => (
-            <li key={slot.hour} className="flex items-center gap-2">
-              <span className="w-24 text-sm text-gray-500">{slot.hour}</span>
+            <li key={slot.hour} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
+              <span className="w-full sm:w-24 text-xs sm:text-sm text-gray-500 font-medium">
+                {slot.hour}
+              </span>
               <input
-                className={`flex-1 p-2 text-sm border rounded ${
+                className={`flex-1 p-2 sm:p-2 text-xs sm:text-sm border rounded-md ${
                   slot.completed ? 'line-through text-gray-400 bg-gray-50' : ''
-                }`}
+                } focus:outline-none focus:ring-2 focus:ring-blue-300`}
                 value={slot.task}
                 onChange={e => updateTask(i, e.target.value)}
                 placeholder="Enter task..."
               />
               <button
                 onClick={() => toggleDone(i)}
-                className={`px-2 py-1 rounded ${
+                className={`px-3 py-2 sm:px-2 sm:py-1 rounded-md sm:rounded flex items-center justify-center ${
                   slot.completed
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                } transition-colors`}
               >
                 <CheckIcon className="h-4 w-4" />
               </button>

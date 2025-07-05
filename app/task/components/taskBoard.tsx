@@ -7,6 +7,7 @@ import {
   Bars3Icon,
   PlusIcon,
   XMarkIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline'
 import TaskCard from './taskCard'
 
@@ -37,6 +38,7 @@ export default function TaskBoard() {
   const [categories, setCategories] = useState<string[]>([...defaultCategories])
   const [newCategory, setNewCategory] = useState('')
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false)
 
   useEffect(() => {
     const savedTasks = localStorage.getItem('tasks')
@@ -164,17 +166,17 @@ export default function TaskBoard() {
   ).length
 
   return (
-    <div className="min-h-screen font-sans">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">📋 Task Manager</h1>
+    <div className="min-h-screen font-sans p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 text-center">📋 Task Manager</h1>
 
         {/* Inputs */}
-        <div className="flex flex-wrap gap-2">
+        <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-2">
           <input
             value={newTask}
             onChange={e => setNewTask(e.target.value)}
             placeholder="New task..."
-            className="flex-1 p-2 rounded-lg border border-gray-300 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            className="w-full sm:flex-1 p-3 sm:p-2 rounded-lg border border-gray-300 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 text-sm sm:text-base"
           />
           <select
             value={category}
@@ -185,7 +187,7 @@ export default function TaskBoard() {
                 setCategory(e.target.value)
               }
             }}
-            className="p-2 rounded-lg border border-gray-300 shadow-sm bg-white"
+            className="w-full sm:w-auto p-3 sm:p-2 rounded-lg border border-gray-300 shadow-sm bg-white text-sm sm:text-base"
           >
             {categories.filter(c => c !== 'All').map(cat => (
               <option key={cat} value={cat}>
@@ -198,25 +200,25 @@ export default function TaskBoard() {
             type="date"
             value={dueDate}
             onChange={e => setDueDate(e.target.value)}
-            className="p-2 rounded-lg border border-gray-300 shadow-sm bg-white"
+            className="w-full sm:w-auto p-3 sm:p-2 rounded-lg border border-gray-300 shadow-sm bg-white text-sm sm:text-base"
           />
           <button
             onClick={addTask}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 sm:py-2 rounded-lg text-sm sm:text-base font-medium"
           >
-            Add
+            Add Task
           </button>
         </div>
 
         {/* Category Modal */}
         {isCategoryModalOpen && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
             onClick={() => setIsCategoryModalOpen(false)}
           >
             <div
               onClick={e => e.stopPropagation()}
-              className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md relative"
+              className="bg-white p-4 sm:p-6 rounded-xl shadow-xl w-full max-w-md relative"
             >
               <button
                 className="absolute top-3 right-3"
@@ -225,16 +227,16 @@ export default function TaskBoard() {
                 <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
               </button>
               <h3 className="text-lg font-semibold mb-4">Add New Category</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   value={newCategory}
                   onChange={e => setNewCategory(e.target.value)}
                   placeholder="New category name..."
-                  className="flex-1 p-2 border rounded shadow-sm"
+                  className="flex-1 p-2 border rounded shadow-sm text-sm sm:text-base"
                 />
                 <button
                   onClick={addNewCategory}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm sm:text-base"
                 >
                   <PlusIcon className="h-5 w-5" />
                 </button>
@@ -244,8 +246,39 @@ export default function TaskBoard() {
         )}
 
         {/* Filters + View Mode */}
-        <div className="flex justify-between flex-wrap items-center gap-4">
-          <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          {/* Mobile Filter Dropdown */}
+          <div className="sm:hidden relative">
+            <button
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+              className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-300 bg-white text-sm font-medium"
+            >
+              <span>{filter} ({categoryCounts[filter] || 0})</span>
+              <ChevronDownIcon className={`h-4 w-4 transition-transform ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isFilterDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setFilter(cat)
+                      setIsFilterDropdownOpen(false)
+                    }}
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 text-sm ${
+                      filter === cat ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
+                    }`}
+                  >
+                    {cat} ({categoryCounts[cat] || 0})
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Filter Tabs */}
+          <div className="hidden sm:flex gap-2 flex-wrap">
             {categories.map(cat => (
               <div key={cat} className="relative flex items-center">
                 <button
@@ -271,7 +304,8 @@ export default function TaskBoard() {
             ))}
           </div>
 
-          <div className="flex gap-2">
+          {/* View Mode - Only show on desktop */}
+          <div className="hidden sm:flex gap-2">
             <button
               onClick={() => setIsGrid(true)}
               className={`p-2 rounded-lg border ${
@@ -294,13 +328,17 @@ export default function TaskBoard() {
         </div>
 
         {/* Stats */}
-        <p className="text-gray-500 text-sm text-center">
+        <p className="text-gray-500 text-xs sm:text-sm text-center">
           ✅ Completed Today: {completedToday} / {tasks.length}
         </p>
 
         {/* Tasks */}
         <ul
-          className={`grid ${isGrid ? 'sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}
+          className={`grid gap-3 sm:gap-4 ${
+            isGrid 
+              ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' 
+              : 'grid-cols-1'
+          }`}
         >
           {filtered.map(task => (
             <TaskCard
@@ -319,7 +357,7 @@ export default function TaskBoard() {
         </ul>
 
         {filtered.length === 0 && (
-          <p className="text-center text-gray-400">No tasks available.</p>
+          <p className="text-center text-gray-400 text-sm sm:text-base">No tasks available.</p>
         )}
       </div>
     </div>

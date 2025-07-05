@@ -81,10 +81,11 @@ export default function TaskCard({
     <li
       className={`${
         isCompleted ? 'bg-green-300' : 'bg-white'
-      } border border-gray-200 rounded-xl p-4 hover:shadow transition cursor-pointer`}
+      } border border-gray-200 rounded-xl p-4 hover:shadow transition cursor-pointer flex flex-col h-16 sm:h-auto`}
     >
-      <div className="flex justify-between items-start gap-2">
-        <div className="flex-1">
+      {/* Fixed Header - Title and Action Buttons */}
+      <div className="flex justify-between items-start gap-2 shrink-0">
+        <div className="flex-1 min-w-0">
           {editId === task.id ? (
             <div className="space-y-2">
               <input
@@ -92,13 +93,13 @@ export default function TaskCard({
                 onChange={e => setEditTitle(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
                 autoFocus
-                className="w-full p-2 border rounded-lg shadow-sm"
+                className="w-full p-2 border rounded-lg shadow-sm text-sm"
                 placeholder="Task title..."
               />
               <select
                 value={editCategory}
                 onChange={e => setEditCategory(e.target.value)}
-                className="w-full p-2 rounded-lg border border-gray-300 shadow-sm bg-white"
+                className="w-full p-2 rounded-lg border border-gray-300 shadow-sm bg-white text-sm"
               >
                 {categories.filter(c => c !== 'All').map(cat => (
                   <option key={cat} value={cat}>
@@ -110,11 +111,11 @@ export default function TaskCard({
                 type="date"
                 value={editDueDate}
                 onChange={e => setEditDueDate(e.target.value)}
-                className="w-full p-2 rounded-lg border border-gray-300 shadow-sm bg-white"
+                className="w-full p-2 rounded-lg border border-gray-300 shadow-sm bg-white text-sm"
               />
               <button
                 onClick={handleSaveEdit}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg w-full"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg w-full text-sm"
               >
                 Save
               </button>
@@ -122,48 +123,61 @@ export default function TaskCard({
           ) : (
             <>
               <h3
-                className="text-lg font-semibold text-gray-800"
+                className="text-base sm:text-lg font-semibold text-gray-800 truncate"
                 onClick={() => setModalTaskId(task.id)}
               >
                 {task.title}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs sm:text-sm text-gray-500 truncate">
                 {task.category} • {task.status} •{' '}
                 {task.dueDate && `📅 ${ task.dueDate}`}
               </p>
-              {totalCount > 0 && (
-                <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
-                  <div
-                    className="bg-indigo-500 h-2 rounded-full transition-all"
-                    style={{ width: `${(completedCount / totalCount) * 100}%` }}
-                  />
-                </div>
-              )}
             </>
           )}
         </div>
-        <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-          <button onClick={() => toggleStatus(task.id)} title="Toggle Status">
-            <ArrowPathIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+        <div className="flex gap-1 sm:gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+          <button onClick={() => toggleStatus(task.id)} title="Toggle Status" className="p-1">
+            <ArrowPathIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-indigo-600" />
           </button>
-          <button onClick={startEdit} title="Edit">
-            <PencilIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+          <button onClick={startEdit} title="Edit" className="p-1">
+            <PencilIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-indigo-600" />
           </button>
-          <button onClick={() => deleteTask(task.id)} title="Delete">
-            <TrashIcon className="h-5 w-5 text-gray-400 hover:text-red-500" />
+          <button onClick={() => deleteTask(task.id)} title="Delete" className="p-1">
+            <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-red-500" />
           </button>
         </div>
+      </div>
+
+      {/* Scrollable Content - Progress Bar and Additional Info */}
+      <div className="flex-1 overflow-y-auto sm:overflow-visible mt-2 sm:mt-0">
+        {editId !== task.id && (
+          <>
+            {totalCount > 0 && (
+              <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 mt-1 sm:mt-2">
+                <div
+                  className="bg-indigo-500 h-1.5 sm:h-2 rounded-full transition-all"
+                  style={{ width: `${(completedCount / totalCount) * 100}%` }}
+                />
+              </div>
+            )}
+            {totalCount > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                {completedCount}/{totalCount} checklist items completed
+              </p>
+            )}
+          </>
+        )}
       </div>
 
       {/* Checklist Modal */}
       {modalTaskId === task.id && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setModalTaskId(null)}
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md relative"
+            className="bg-white p-4 sm:p-6 rounded-xl shadow-xl w-full max-w-md relative"
           >
             <button
               className="absolute top-3 right-3"
