@@ -76,12 +76,15 @@ export default function TaskCard({
   const completedCount = task.checklist?.filter(c => c.checked).length || 0
   const totalCount = task.checklist?.length || 0
   const isCompleted = task.status === 'done'
+  const isDueToday = task.dueDate && new Date(task.dueDate).toDateString() === new Date().toDateString()
 
   return (
     <li
       className={`${
-        isCompleted ? 'bg-green-300' : 'bg-white'
-      } border border-gray-200 rounded-xl p-4 hover:shadow transition cursor-pointer flex flex-col h-16 sm:h-auto`}
+        isCompleted ? 'bg-green-300' : task.status === 'inprogress' ? 'bg-yellow-100' : 'bg-white'
+      } border ${
+        isDueToday ? 'border-red-400 border-2' : 'border-gray-200'
+      } rounded-xl p-4 hover:shadow transition cursor-pointer flex flex-col h-16 sm:h-auto`}
     >
       {/* Fixed Header - Title and Action Buttons */}
       <div className="flex justify-between items-start gap-2 shrink-0">
@@ -130,7 +133,7 @@ export default function TaskCard({
               </h3>
               <p className="text-xs sm:text-sm text-gray-500 truncate">
                 {task.category} • {task.status} •{' '}
-                {task.dueDate && `📅 ${ task.dueDate}`}
+                <span className={`${isDueToday && 'text-red-600'}`}>{task.dueDate && `📅 ${ task.dueDate}`}</span>
               </p>
             </>
           )}

@@ -108,8 +108,21 @@ export default function TaskCardsOnly() {
     return acc
   }, {} as Record<string, number>)
 
-  // Show only the most recent 5 tasks
-  const recentTasks = tasks.slice(0, 5)
+  // Filter out completed tasks and sort by due date
+  const activeTasks = tasks
+    .filter(task => task.status !== 'done')
+    .sort((a, b) => {
+      // If both have due dates, sort by due date
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      }
+      // If only one has due date, prioritize the one with due date
+      if (a.dueDate && !b.dueDate) return -1
+      if (!a.dueDate && b.dueDate) return 1
+      // If neither has due date, sort by creation time (newest first)
+      return b.id - a.id
+    })
+    .slice(0, 5) // Show only the first 5 tasks
 
   return (
     <div className="space-y-4">
@@ -118,13 +131,13 @@ export default function TaskCardsOnly() {
         <span className="text-sm text-gray-500">{tasks.length} total tasks</span>
       </div>
       
-      {recentTasks.length === 0 ? (
+      {activeTasks.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>No tasks yet. Create your first task!</p>
+          <p>No active tasks. All tasks completed! 🎉</p>
         </div>
       ) : (
         <ul className="space-y-3">
-          {recentTasks.map(task => (
+          {activeTasks.map((task: Task) => (
             <TaskCard
               key={task.id}
               task={task}
@@ -141,10 +154,10 @@ export default function TaskCardsOnly() {
         </ul>
       )}
       
-      {tasks.length > 5 && (
+      {tasks.filter(task => task.status !== 'done').length > 5 && (
         <div className="text-center pt-2">
           <p className="text-sm text-gray-500">
-            Showing 5 of {tasks.length} tasks
+            Showing 5 of {tasks.filter(task => task.status !== 'done').length} active tasks
           </p>
         </div>
       )}

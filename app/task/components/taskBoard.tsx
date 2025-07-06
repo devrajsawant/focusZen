@@ -200,6 +200,7 @@ export default function TaskBoard() {
             type="date"
             value={dueDate}
             onChange={e => setDueDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
             className="w-full sm:w-auto p-3 sm:p-2 rounded-lg border border-gray-300 shadow-sm bg-white text-sm sm:text-base"
           />
           <button

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const hours = [
-  '06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM',
+  '05:00 AM' , '06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM',
   '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM',
   '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM',
-  '09:00 PM', '10:00 PM'
+  '09:00 PM', '10:00 PM' , '11:00 PM' , '12:00'
 ]
 
 type TimeSlot = {
@@ -122,9 +122,12 @@ useEffect(() => {
               />
               <button
                 onClick={() => toggleDone(i)}
+                disabled={!slot.task.trim()}
                 className={`px-3 py-2 sm:px-2 sm:py-1 rounded-md sm:rounded flex items-center justify-center ${
                   slot.completed
                     ? 'bg-green-500 text-white hover:bg-green-600'
+                    : !slot.task.trim()
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 } transition-colors`}
               >
