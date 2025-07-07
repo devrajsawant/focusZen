@@ -2,6 +2,7 @@
 import Sidebar from '@/components/Sidebar'
 import './globals.css'
 import { ReactNode } from 'react'
+import Head from 'next/head'
 
 export const metadata = {
   title: 'Productivity Dashboard',
@@ -11,7 +12,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen bg-gray-100" cz-shortcut-listen="true">
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ffffff" />
+        <link rel="apple-touch-icon" href="/icon.png" />
+      </Head>
+      <body className="flex min-h-screen bg-gray-100">
         <Sidebar />
         <main className="flex-1 p-6 mb-10 md:mb-0">{children}</main>
       </body>

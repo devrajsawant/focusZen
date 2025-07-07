@@ -1,0 +1,17 @@
+{
+    "name": "FocusZen",
+    "short_name": "FocusZen",
+    "start_url": "/dashboard",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "icons": [
+  {
+    "src": "/icon.png",
+    "type": "image/png",
+    "sizes": "512x512"
+  }
+]
+  }
+  
