@@ -9,7 +9,7 @@ export default function DashboardPage() {
     <section className="min-h-[92vh] sm:h-[92vh] flex flex-col space-y-4 sm:space-y-6 p-4 sm:p-6 overflow-hidden">
       {/* Header */}
       <div className="shrink-0">
-        <h1 className="text-2xl sm:text-3xl font-bold">Welcome back, Dev 👋</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Welcome back, Champ 👋</h1>
         <p className="text-sm sm:text-base text-gray-600">Here's your productivity summary</p>
       </div>
 
