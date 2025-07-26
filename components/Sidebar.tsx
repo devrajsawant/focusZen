@@ -11,12 +11,14 @@ import {
   CpuChipIcon,
   BeakerIcon
 } from '@heroicons/react/24/outline'
+import { Banknote } from 'lucide-react'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: <HomeIcon className="w-5 h-5" /> },
   { label: 'Tasks', href: '/task', icon: <ClipboardDocumentListIcon className="w-5 h-5" /> },
   { label: 'Planner', href: '/planner', icon: <CalendarIcon className="w-5 h-5" /> },
   { label: 'Habits', href: '/habits', icon: <ChartBarIcon className="w-5 h-5" /> },
+  { label: 'Expense', href: '/expense', icon: <Banknote className="w-5 h-5" /> },
   { label: 'DSA', href: '/dsa', icon: <CpuChipIcon className="w-5 h-5" /> },
 ]
 

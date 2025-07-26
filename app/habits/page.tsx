@@ -8,7 +8,7 @@ import MonthlyCalendar from "./components/MonthlyCalendar";
 const HabitTrackerPage: React.FC = () => {
   return (
     <HabitProvider>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+      <div className="min-h-screen p-4">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center mb-8">
