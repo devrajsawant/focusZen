@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import { PlusIcon, XMarkIcon, ChevronDownIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, XMarkIcon, ChevronDownIcon, PencilSquareIcon, TrashIcon, FunnelIcon } from "@heroicons/react/24/outline";
 
 interface Expense {
   id: string;
@@ -24,14 +24,16 @@ const App: React.FC = () => {
     type: "Need",
   });
   const [filter, setFilter] = useState<string>("All");
+  const [typeFilter, setTypeFilter] = useState<string>("all"); // "all", "need", "want"
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [isTypeFilterDropdownOpen, setIsTypeFilterDropdownOpen] = useState(false);
   const [editExpense, setEditExpense] = useState<Expense | null>(null);
 
   useEffect(() => {
     const storedExpenses = localStorage.getItem("expenses");
-    const storedCats = localStorage.getItem("categories");
+    const storedCats = localStorage.getItem("expenseCategories");
     if (storedExpenses) setExpenses(JSON.parse(storedExpenses));
     if (storedCats) {
       const saved = JSON.parse(storedCats);
@@ -45,7 +47,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const custom = categories.filter((c) => !defaultCategories.includes(c));
-    localStorage.setItem("categories", JSON.stringify(custom));
+    localStorage.setItem("expenseCategories", JSON.stringify(custom));
   }, [categories]);
 
   const handleAddOrUpdate = () => {
@@ -116,33 +118,76 @@ const App: React.FC = () => {
     if (form.category === cat) setForm({ ...form, category: "Uncategorized" });
   };
 
-  const filteredExpenses =
-    filter === "All"
-      ? expenses
-      : expenses.filter((e) => e.category === filter);
+  // Calculate category counts for ALL expenses (not filtered)
+  const categoryCounts = categories.reduce((acc, cat) => {
+    acc[cat] = cat === "All" ? expenses.length : expenses.filter((e) => e.category === cat).length;
+    return acc;
+  }, {} as Record<string, number>);
 
-  const grouped = filteredExpenses.reduce<Record<string, Expense[]>>((acc, e) => {
+  // Filter expenses based on selected category and type
+  const filteredExpenses = expenses.filter((e) => {
+    const categoryMatch = filter === "All" || e.category === filter;
+    const typeMatch = typeFilter === "all" || e.type.toLowerCase() === typeFilter;
+    return categoryMatch && typeMatch;
+  });
+
+  // Sort expenses by date (newest first)
+  const sortedExpenses = [...filteredExpenses].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const grouped = sortedExpenses.reduce<Record<string, Expense[]>>((acc, e) => {
     if (!acc[e.date]) acc[e.date] = [];
     acc[e.date].push(e);
     return acc;
   }, {});
 
-  const stats: Record<string, number> = {};
-  categories.forEach((c) => {
-    stats[c] = c === "All" ? filteredExpenses.length : filteredExpenses.filter((e) => e.category === c).length;
-  });
-
-  const sumByPeriod = (days: number): number => {
-    const now = new Date("2025-07-26T15:09:00Z"); // Current date and time: 03:09 PM IST, July 26, 2025
-    now.setHours(0, 0, 0, 0); // Reset to start of day
-    return expenses
+  const sumByPeriod = (days: number, expensesToSum: Expense[] = expenses): number => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return expensesToSum
       .filter((e) => {
         const expDate = new Date(e.date);
-        expDate.setHours(0, 0, 0, 0); // Reset to start of day for comparison
+        expDate.setHours(0, 0, 0, 0);
         const diffDays = Math.floor((now.getTime() - expDate.getTime()) / (1000 * 60 * 60 * 24));
         return diffDays < days && diffDays >= 0;
       })
       .reduce((sum, e) => sum + e.amount, 0);
+  };
+
+  const sumByType = (type: "Need" | "Want", expensesToSum: Expense[] = expenses): number => {
+    return expensesToSum
+      .filter((e) => e.type === type)
+      .reduce((sum, e) => sum + e.amount, 0);
+  };
+
+  const sumByTypeAndPeriod = (type: "Need" | "Want", days: number): number => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return expenses
+      .filter((e) => {
+        const expDate = new Date(e.date);
+        expDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.floor((now.getTime() - expDate.getTime()) / (1000 * 60 * 60 * 24));
+        return diffDays < days && diffDays >= 0 && e.type === type;
+      })
+      .reduce((sum, e) => sum + e.amount, 0);
+  };
+
+  // Calculate category-wise spending for selected category
+  const getCategorySpending = (category: string) => {
+    const categoryExpenses = expenses.filter(e => e.category === category);
+    const total = categoryExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const currentMonth = sumByPeriod(30, categoryExpenses);
+    return { total, currentMonth };
+  };
+
+  const getTypeFilterLabel = () => {
+    switch (typeFilter) {
+      case "need": return "Need Only";
+      case "want": return "Want Only";
+      default: return "All Types";
+    }
   };
 
   return (
@@ -152,67 +197,132 @@ const App: React.FC = () => {
           Expense Tracker
         </h1>
 
-        {/* Filters */}
+        {/* Filters and Sort */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div className="sm:hidden relative">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Mobile Filter Dropdown */}
+            <div className="sm:hidden relative">
+              <button
+                onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-300 bg-white text-sm font-medium text-indigo-900"
+              >
+                <span>
+                  {filter} ({categoryCounts[filter] || 0})
+                </span>
+                <ChevronDownIcon
+                  className={`h-4 w-4 transition-transform ${
+                    isFilterDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isFilterDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+                  {categories.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => {
+                        setFilter(c);
+                        setIsFilterDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 hover:bg-indigo-50 text-sm ${
+                        filter === c
+                          ? "bg-indigo-100 text-indigo-700 font-medium"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {c} ({categoryCounts[c] || 0})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Filter Tabs */}
+            <div className="hidden sm:flex gap-2 flex-wrap">
+              {categories.map((c) => (
+                <div key={c} className="relative">
+                  <button
+                    onClick={() => setFilter(c)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+                      filter === c
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "bg-white text-indigo-900 border border-gray-300 hover:bg-indigo-50"
+                    }`}
+                  >
+                    {c} ({categoryCounts[c] || 0})
+                  </button>
+                  {!defaultCategories.includes(c) && (
+                    <button
+                      onClick={() => deleteCategory(c)}
+                      className="absolute -right-2 -top-2 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
+                      title="Delete"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Type Filter Dropdown - Right Aligned */}
+          <div className="relative">
             <button
-              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-300 bg-white text-sm font-medium text-indigo-900"
+              onClick={() => setIsTypeFilterDropdownOpen(!isTypeFilterDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
             >
-              <span>
-                {filter} ({stats[filter] || 0})
-              </span>
+              <FunnelIcon className="h-4 w-4 text-gray-500" />
+              <span>{getTypeFilterLabel()}</span>
               <ChevronDownIcon
                 className={`h-4 w-4 transition-transform ${
-                  isFilterDropdownOpen ? "rotate-180" : ""
+                  isTypeFilterDropdownOpen ? "rotate-180" : ""
                 }`}
               />
             </button>
-            {isFilterDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                {categories.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => {
-                      setFilter(c);
-                      setIsFilterDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 hover:bg-indigo-50 text-sm ${
-                      filter === c
-                        ? "bg-indigo-100 text-indigo-700 font-medium"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {c} ({stats[c] || 0})
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="hidden sm:flex gap-2 flex-wrap">
-            {categories.map((c) => (
-              <div key={c} className="relative">
+            
+            {isTypeFilterDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-[160px]">
                 <button
-                  onClick={() => setFilter(c)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                    filter === c
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "bg-white text-indigo-900 border border-gray-300 hover:bg-indigo-50"
+                  onClick={() => {
+                    setTypeFilter("all");
+                    setIsTypeFilterDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 hover:bg-indigo-50 text-sm ${
+                    typeFilter === "all"
+                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                      : "text-gray-700"
                   }`}
                 >
-                  {c} ({stats[c] || 0})
+                  All Types
                 </button>
-                {!defaultCategories.includes(c) && (
-                  <button
-                    onClick={() => deleteCategory(c)}
-                    className="absolute -right-2 -top-2 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
-                    title="Delete"
-                  >
-                    ×
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    setTypeFilter("need");
+                    setIsTypeFilterDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 hover:bg-indigo-50 text-sm ${
+                    typeFilter === "need"
+                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Need Only
+                </button>
+                <button
+                  onClick={() => {
+                    setTypeFilter("want");
+                    setIsTypeFilterDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-3 hover:bg-indigo-50 text-sm ${
+                    typeFilter === "want"
+                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Want Only
+                </button>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -250,7 +360,7 @@ const App: React.FC = () => {
             >
               {categories.filter((c) => c !== "All").map((c) => (
                 <option key={c} value={c}>
-                  {c} ({stats[c] || 0})
+                  {c} ({categoryCounts[c] || 0})
                 </option>
               ))}
               <option value="add-type">+ Add Category</option>
@@ -342,17 +452,79 @@ const App: React.FC = () => {
           </div>
 
           {/* Right Column - Summary (h-fit) */}
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 space-y-2 h-fit col-span-1">
-            <h3 className="text-lg font-semibold text-indigo-900 mb-3">Summary</h3>
-            <p className="text-sm">
-              <strong>Today:</strong> ₹ {sumByPeriod(1).toFixed(2)}
-            </p>
-            <p className="text-sm">
-              <strong>This Week:</strong> ₹ {sumByPeriod(7).toFixed(2)}
-            </p>
-            <p className="text-sm">
-              <strong>This Month:</strong> ₹ {sumByPeriod(30).toFixed(2)}
-            </p>
+          <div className="space-y-4 col-span-1">
+            {/* General Summary */}
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 space-y-2">
+              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Summary</h3>
+              <p className="text-sm">
+                <strong>Today:</strong> ₹ {sumByPeriod(1).toFixed(2)}
+              </p>
+              <p className="text-sm">
+                <strong>This Week:</strong> ₹ {sumByPeriod(7).toFixed(2)}
+              </p>
+              <p className="text-sm">
+                <strong>This Month:</strong> ₹ {sumByPeriod(30).toFixed(2)}
+              </p>
+            </div>
+
+            {/* Need/Want Summary */}
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 space-y-2">
+              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Need vs Want</h3>
+              <div className="space-y-2">
+              <div className="flex justify-between">
+                  <span className="text-sm text-green-600 font-semibold">Need (This Month):</span>
+                  <span className="text-sm font-medium">₹ {sumByTypeAndPeriod("Need", 30).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-green-600 font-semibold">Need (Total):</span>
+                  <span className="text-sm font-medium">₹ {sumByType("Need").toFixed(2)}</span>
+                </div>
+                
+                <div className="flex justify-between border-t border-gray-200 pt-2">
+                  <span className="text-sm text-orange-600 font-semibold">Want (This Month):</span>
+                  <span className="text-sm font-medium">₹ {sumByTypeAndPeriod("Want", 30).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-orange-600 font-semibold">Want (Total):</span>
+                  <span className="text-sm font-medium">₹ {sumByType("Want").toFixed(2)}</span>
+                </div>
+               
+                <div className="pt-2 border-t border-gray-200">
+                  <div className="text-xs text-center text-gray-600">
+                    {sumByType("Need") + sumByType("Want") > 0 ? (
+                      <>
+                        <span className="text-green-600 font-medium">
+                          {((sumByType("Need") / (sumByType("Need") + sumByType("Want"))) * 100).toFixed(1)}% Needs
+                        </span>
+                        {" | "}
+                        <span className="text-orange-600 font-medium">
+                          {((sumByType("Want") / (sumByType("Need") + sumByType("Want"))) * 100).toFixed(1)}% Wants
+                        </span>
+                      </>
+                    ) : (
+                      "No expenses recorded"
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Category Summary - Only show when a specific category is selected */}
+            {filter !== "All" && (
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200 space-y-2">
+                <h3 className="text-lg font-semibold text-indigo-900 mb-3">{filter} Summary</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Total Spent:</span>
+                    <span className="text-sm font-medium">₹ {getCategorySpending(filter).total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">This Month:</span>
+                    <span className="text-sm font-medium">₹ {getCategorySpending(filter).currentMonth.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

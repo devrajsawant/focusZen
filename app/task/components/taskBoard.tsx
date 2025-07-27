@@ -42,7 +42,7 @@ export default function TaskBoard() {
 
   useEffect(() => {
     const savedTasks = localStorage.getItem('tasks')
-    const savedCategories = localStorage.getItem('categories')
+    const savedCategories = localStorage.getItem('taskCategories')
     if (savedTasks) setTasks(JSON.parse(savedTasks))
     if (savedCategories) {
       const stored = JSON.parse(savedCategories)
@@ -58,7 +58,7 @@ export default function TaskBoard() {
 
   useEffect(() => {
     const customCategories = categories.filter(c => !defaultCategories.includes(c))
-    localStorage.setItem('categories', JSON.stringify(customCategories))
+    localStorage.setItem('taskCategories', JSON.stringify(customCategories))
   }, [categories])
 
   const addTask = () => {
