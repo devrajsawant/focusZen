@@ -25,6 +25,11 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+  // Hide sidebar on home route
+  if (pathname === '/') {
+    return null;
+  }
+
   return (
     <>
       {/* Desktop Sidebar */}
