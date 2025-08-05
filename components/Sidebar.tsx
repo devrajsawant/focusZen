@@ -12,6 +12,8 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline'
 import { Banknote } from 'lucide-react'
+import Image from 'next/image';
+
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: <HomeIcon className="w-5 h-5" /> },
@@ -35,8 +37,8 @@ export default function Sidebar() {
       {/* Desktop Sidebar */}
       <aside className="w-64 font-sans bg-white shadow-xl rounded-xl p-4 hidden md:flex flex-col h-screen justify-between border border-gray-200 transition-colors duration-200 sticky top-0">
         <div>
-          <div className='flex h-fit mb-8 items-center gap-3 justify-start py-2 border-b border-grey-400'>
-          <span><BeakerIcon className="w-6 h-6"/></span>
+          <div className='flex h-fit mb-8 items-center gap-1 justify-start py-2 border-b border-grey-400'>
+          <span><Image src='/assets/FocusZenLogo2.png' alt='focusZenLogo' width={32} height={32}/></span>
           <h2 className="text-2xl font-bold  tracking-tight text-gray-900 font-sans">  FocusZen</h2>
           </div>
           <nav className="flex flex-col gap-2">
