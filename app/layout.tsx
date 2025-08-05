@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </Head>
       <body className="flex min-h-screen bg-gray-100"  cz-shortcut-listen="true">
         <Sidebar />
-        <main className="flex-1 mb-10 md:mb-0">{children}</main>
+        <main className="flex-1 mb-20 mt-20 md:mb-0 md:mt-0" >{children}</main>
       </body>
     </html>
   )
