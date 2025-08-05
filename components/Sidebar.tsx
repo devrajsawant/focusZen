@@ -21,7 +21,6 @@ const navItems = [
   { label: 'Planner', href: '/planner', icon: <CalendarIcon className="w-5 h-5" /> },
   { label: 'Habits', href: '/habits', icon: <ChartBarIcon className="w-5 h-5" /> },
   { label: 'Expense', href: '/expense', icon: <Banknote className="w-5 h-5" /> },
-  { label: 'DSA', href: '/dsa', icon: <CpuChipIcon className="w-5 h-5" /> },
 ]
 
 export default function Sidebar() {
