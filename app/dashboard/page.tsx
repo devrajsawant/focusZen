@@ -49,14 +49,14 @@ export default function DashboardPage() {
           {/* LEFT column (full width on small, ~70% on md+) */}
           <div className="flex flex-col w-full md:w-[70%] gap-4 overflow-hidden">
             {/* Project panel (top) */}
-            <div className="shrink-0">
+            {/* <div className="shrink-0">
               <ProjectPanel projects={exampleProjects} />
-            </div>
+            </div> */}
 
             {/* Task list (fills remaining left space) */}
-            <div className="flex-1 bg-white rounded-xl shadow-sm p-4 sm:p-6 overflow-auto">
+            {/* <div className="flex-1 bg-white rounded-xl shadow-sm p-4 sm:p-6 overflow-auto">
               <TaskCardsOnly />
-            </div>
+            </div> */}
           </div>
 
           {/* RIGHT column (full width below on small, ~30% on md+) */}
