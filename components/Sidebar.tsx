@@ -13,6 +13,7 @@ import {
   Cog6ToothIcon,
   InformationCircleIcon,
   UserIcon,
+  FolderIcon
 } from "@heroicons/react/24/outline";
 import { Banknote } from "lucide-react";
 import Image from "next/image";
@@ -21,6 +22,7 @@ import { useState } from "react";
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: <HomeIcon className="w-5 h-5" /> },
   { label: "Tasks", href: "/task", icon: <ClipboardDocumentListIcon className="w-5 h-5" /> },
+  { label: "Projects", href: "/project", icon: <FolderIcon className="w-5 h-5" /> },
   { label: "Planner", href: "/planner", icon: <CalendarIcon className="w-5 h-5" /> },
   { label: "Habits", href: "/habits", icon: <ChartBarIcon className="w-5 h-5" /> },
   { label: "Expense", href: "/expense", icon: <Banknote className="w-5 h-5" /> },
@@ -44,11 +46,11 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="w-64 font-sans bg-white shadow-xl rounded-xl p-4 hidden md:flex flex-col h-screen justify-between border border-gray-200 sticky top-0">
+      <aside className="w-64 font-sans bg-[#242333] text-gray-400 shadow-xl p-4 m-0 hidden md:flex flex-col h-screen justify-between border border-gray-200 sticky top-0">
         <div>
-          <div className="flex h-fit mb-8 items-center gap-1 justify-start py-2 border-b border-gray-200">
+          <div className="flex h-fit mb-8 pt-10 pb-5 items-center gap-1 justify-start border-b border-gray-200">
             <Image src="/assets/FocusZenLogo2.png" alt="focusZenLogo" width={32} height={32} />
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 font-sans">FocusZen</h2>
+            <h2 className="text-2xl font-thin tracking-tight text-gray-100 font-sans">FocusZen</h2>
           </div>
           <nav className="flex flex-col gap-2">
             {navItems.map(({ label, href, icon }) => (
@@ -56,8 +58,8 @@ export default function Sidebar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-base font-medium font-sans focus:outline-none tracking-tight",
-                  pathname === href ? "bg-blue-100 text-blue-700 shadow-sm" : "text-gray-700 hover:bg-gray-100"
+                  "flex items-center gap-3 px-4 py-3 rounded-3xl transition-colors text-base font-thin font-sans focus:outline-none tracking-tight",
+                  pathname === href ? "border-1 border-gray-200 text-gray-100 shadow-xl" : "text-gray-300 hover:bg-gray-700"
                 )}
               >
                 {icon}

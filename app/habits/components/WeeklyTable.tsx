@@ -56,7 +56,7 @@ const WeeklyTable: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-2 mx-2 md:mx-auto md:max-w-[60vw]">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Weekly Progress</h2>
         <div className="flex items-center space-x-2">
@@ -86,20 +86,19 @@ const WeeklyTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-w-[100vw]">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-medium text-gray-600">Habit</th>
+            <tr className="border-b border-gray-200 bg-slate-100">
+              <th className="text-left py-3 px-1.5 font-medium text-gray-600">Habit</th>
               {weekDates.map((date) => (
-                <th key={date} className="text-center py-3 px-2 font-medium text-gray-600">
+                <th key={date} className="text-center py-3 px-1.5 font-medium text-gray-600">
                   <div className="flex flex-col items-center">
                     <span className="text-xs text-gray-500">{getDayName(date)}</span>
                     <span className="text-sm font-semibold">{getDayNumber(date)}</span>
                   </div>
                 </th>
               ))}
-              <th className="text-center py-3 px-2 font-medium text-gray-600">Progress</th>
             </tr>
           </thead>
           <tbody>
@@ -111,13 +110,10 @@ const WeeklyTable: React.FC = () => {
                 <tr key={habit.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-2">
                     <div className="font-medium text-gray-800">{habit.name}</div>
-                    {habit.description && (
-                      <div className="text-xs text-gray-500">{habit.description}</div>
-                    )}
+                  
                   </td>
                   {weekDates.map((date) => {
                     const isCompleted = weekProgress[date] || false;
-                    const isToday = date === new Date().toISOString().split('T')[0];
                     
                     return (
                       <td key={date} className="text-center py-3 px-2">
@@ -125,15 +121,13 @@ const WeeklyTable: React.FC = () => {
                           type="checkbox"
                           checked={isCompleted}
                           onChange={() => toggleHabitCompletion(habit.id, date)}
-                          className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                          className="w-3 h-3 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                         />
-                        {isToday && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto mt-1"></div>
-                        )}
+            
                       </td>
                     );
                   })}
-                  <td className="py-3 px-2">
+                  {/* <td className="py-3 px-2">
                     <div className="flex items-center space-x-2">
                       <div className="flex-1 bg-gray-200 rounded-full h-2">
                         <div
@@ -145,7 +139,7 @@ const WeeklyTable: React.FC = () => {
                         {progressPercentage}%
                       </span>
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               );
             })}

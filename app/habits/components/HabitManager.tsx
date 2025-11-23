@@ -53,12 +53,11 @@ const HabitManager: React.FC = () => {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Habit Management</h2>
+      <div className="bg-white rounded-lg  md:p-6 mb-6">
+        <div className="flex items-end justify-end mb-4 flex-col md:flex-row">
           <button
             onClick={openAddModal}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+            className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
           >
             <span>+</span>
             <span>Add Habit</span>
@@ -96,7 +95,7 @@ const HabitManager: React.FC = () => {
                       className="text-red-500 hover:text-red-700 p-1"
                       title="Delete habit"
                     >
-                      🗑️
+                      X
                     </button>
                   </div>
                 </div>
