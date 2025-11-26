@@ -48,7 +48,6 @@ export default function TaskBoard() {
   const [newChecklist, setNewChecklist] = useState<ChecklistItem[]>([]);
 
   // UI state
-  const [isGrid, setIsGrid] = useState(true);
   const [categories, setCategories] = useState<string[]>([
     ...defaultCategories,
   ]);
@@ -278,30 +277,6 @@ export default function TaskBoard() {
                 </div>
 
                 {/* View Mode */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsGrid(true)}
-                    className={`p-2 rounded-lg border ${
-                      isGrid
-                        ? "bg-indigo-100 text-indigo-600"
-                        : "bg-white text-gray-400"
-                    }`}
-                    title="Grid View"
-                  >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setIsGrid(false)}
-                    className={`p-2 rounded-lg border ${
-                      !isGrid
-                        ? "bg-indigo-100 text-indigo-600"
-                        : "bg-white text-gray-400"
-                    }`}
-                    title="List View"
-                  >
-                    <Bars3Icon className="h-5 w-5" />
-                  </button>
-                </div>
               </div>
 
               {/* Stats */}
@@ -310,13 +285,7 @@ export default function TaskBoard() {
               </p>
 
               {/* Tasks grid/list */}
-              <ul
-                className={`grid gap-3 sm:gap-4 ${
-                  isGrid
-                    ? "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
-                    : "grid-cols-1"
-                }`}
-              >
+              <ul className={`grid gap-3 sm:gap-4 ${"grid-cols-1"}`}>
                 {filtered.map((task) => (
                   <TaskCard
                     key={task.id}

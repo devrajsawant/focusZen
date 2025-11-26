@@ -135,10 +135,10 @@ export default function TaskCard({
       pill: "text-gray-700 bg-gray-100",
     },
     low: {
-      stripe: "bg-indigo-200",
-      bg: "bg-indigo-50/60",
-      border: "border-indigo-100",
-      pill: "text-indigo-700 bg-indigo-50",
+      stripe: "bg-green-200",
+      bg: "bg-green-50/60",
+      border: "border-green-100",
+      pill: "text-green-700 bg-green-50",
     },
     medium: {
       stripe: "bg-amber-200",
@@ -159,11 +159,11 @@ export default function TaskCard({
   const priorityPill = (pVal?: string) => {
     switch (pVal) {
       case "high":
-        return "text-red-700 bg-red-100";
+        return "text-red-700 bg-red-100 border-2 border-red-400";
       case "medium":
-        return "text-amber-800 bg-amber-100";
+        return "text-amber-800 bg-amber-100  border-2 border-amber-400";
       case "low":
-        return "text-indigo-700 bg-indigo-50";
+        return "text-green-700 bg-green-50  border-2 border-green-400";
       default:
         return "text-gray-600 bg-gray-100";
     }
@@ -177,7 +177,7 @@ export default function TaskCard({
 
   return (
     <li
-      className={`relative flex flex-col rounded-xl p-0 overflow-hidden shadow-sm transition-transform hover:translate-y-0.5`}
+      className={`relative flex flex-col rounded-xl p-0 shadow-sm transition-transform hover:translate-y-0.5`}
       role="listitem"
     >
       {/* colored left stripe */}
@@ -193,14 +193,14 @@ export default function TaskCard({
         {/* Tags above */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           {task.project && (
-            <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-gray-100">
+            <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-purple-300">
               {task.project}
             </span>
           )}
-          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-gray-100">
+          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-blue-200">
             {task.category}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-gray-50">
+          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-pink-300">
             {statusBadge(task.status)}
           </span>
           <span
@@ -285,36 +285,38 @@ export default function TaskCard({
         </div>
 
         {/* Footer: checklist progress and meta */}
-        <div className="mt-4 flex items-center gap-4 justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-medium text-gray-700">
-                    Checklist
+        {totalCount > 0 && (
+          <div className="mt-4 flex items-center gap-4 justify-between">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-sm font-medium text-gray-700">
+                      Checklist
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {percent}% • {completedCount}/{totalCount}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {percent}% • {completedCount}/{totalCount}
-                  </div>
-                </div>
 
-                <div className="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
-                  <div
-                    className="h-2 rounded-full transition-all"
-                    style={{
-                      width: `${percent}%`,
-                      backgroundColor: "rgba(79, 70, 229, 0.9)", // indigo-600-ish
-                    }}
-                  />
+                  <div className="w-full bg-slate-300 rounded-full h-2 mt-2 overflow-hidden">
+                    <div
+                      className="h-2 rounded-full transition-all"
+                      style={{
+                        width: `${percent}%`,
+                        backgroundColor: "rgba(79, 70, 229, 0.5)", // indigo-600-ish
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="whitespace-nowrap text-xs text-gray-500">
-            {isCompleted ? "Completed" : isDueToday ? "Due Today" : ""}
+            <div className="whitespace-nowrap text-xs text-gray-500">
+              {isCompleted ? "Completed" : isDueToday ? "Due Today" : ""}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Two-panel Modal: left = details, right = checklist */}

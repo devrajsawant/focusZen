@@ -1,0 +1,75 @@
+[
+    {
+        "id": 1764130585213,
+        "title": "create task should be pop up modal instead of form on small devices",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "high"
+    },
+    {
+        "id": 1764130545981,
+        "title": "the info and checklist modal opens inside the card, need to fix it",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "high"
+    },
+    {
+        "id": 1764130392299,
+        "title": "change the task status design",
+        "description": "remove the the pills , give different border color maybe or something like that",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "low"
+    },
+    {
+        "id": 1764130044867,
+        "title": "editing task should open it in the create task form and not there itself",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "high"
+    },
+    {
+        "id": 1764130011386,
+        "title": "implement a search bar on top",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "medium"
+    },
+    {
+        "id": 1764129993640,
+        "title": "remove checklist if no subtask",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "medium"
+    },
+    {
+        "id": 1764129976168,
+        "title": "the pill colors and the checklist color can be different",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "medium"
+    },
+    {
+        "id": 1764129949197,
+        "title": "creating a task and adding the new category should automatically selects the category",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "medium"
+    },
+    {
+        "id": 1764129913455,
+        "title": "remove the bow and row in task and implement only task",
+        "category": "task page",
+        "project": "Inbox Project",
+        "status": "todo",
+        "priority": "medium"
+    }
+]
