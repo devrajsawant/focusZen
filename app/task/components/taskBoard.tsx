@@ -9,7 +9,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import TaskCard from "./taskCard";
-import { CalendarDaysIcon, ChevronDownIcon } from "lucide-react";
+import { CalendarDaysIcon, ChevronDownIcon, X } from "lucide-react";
 
 type ChecklistItem = {
   id: number;
@@ -35,6 +35,9 @@ const dummyProjects = ["Inbox Project", "Website", "Marketing", "Personal"];
 export default function TaskBoard() {
   // tasks state
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  // search state
+  const [query, setQuery] = useState("");
 
   // new task fields (moved to right sidebar)
   const [title, setTitle] = useState("");
@@ -219,16 +222,31 @@ export default function TaskBoard() {
     setNewChecklist((prev) => prev.filter((i) => i.id !== id));
   };
 
-  // counts & filters
+  // --- search & filtering logic ---
+  const matchesQuery = (t: Task) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    if (t.title.toLowerCase().includes(q)) return true;
+    if (t.description?.toLowerCase().includes(q)) return true;
+    if (t.project?.toLowerCase().includes(q)) return true;
+    if (t.category?.toLowerCase().includes(q)) return true;
+    if (t.checklist?.some((ci) => ci.text.toLowerCase().includes(q)))
+      return true;
+    return false;
+  };
+
+  const searched = tasks.filter(matchesQuery);
+
+  // counts & filters (counts reflect the active search)
   const categoryCounts = categories.reduce((acc, cat) => {
     acc[cat] =
       cat === "All"
-        ? tasks.length
-        : tasks.filter((t) => t.category === cat).length;
+        ? searched.length
+        : searched.filter((t) => t.category === cat).length;
     return acc;
   }, {} as Record<string, number>);
 
-  const filtered = tasks.filter(
+  const filtered = searched.filter(
     (task) => filter === "All" || task.category === filter
   );
 
@@ -249,34 +267,48 @@ export default function TaskBoard() {
             <div className="w-full flex-1">
               {/* Filters + view row */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
-                {/* Desktop Filter Tabs */}
-                <div className="flex gap-2 flex-wrap">
-                  {categories.map((cat) => (
-                    <div key={cat} className="relative flex items-center">
-                      <button
-                        onClick={() => setFilter(cat)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                          filter === cat
-                            ? "bg-indigo-600 text-white shadow"
-                            : "bg-white text-gray-600 border"
-                        }`}
-                      >
-                        {cat} ({categoryCounts[cat] || 0})
-                      </button>
-                      {!defaultCategories.includes(cat) && (
+                {/* Search + Desktop Filter Tabs */}
+                <div className="sm:items-center gap-3 w-full">
+                  {/* Search bar */}
+                  <div className="flex-1 mb-5">
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search here..."
+                      className="w-full p-2.5 rounded-lg bg-white border border-gray-300 text-sm text-slate-800 placeholder-slate-400 focus:border-gray-400 focus:outline-none"
+                      aria-label="Search tasks"
+                    />
+                  </div>
+
+                  {/* Desktop Filter Tabs */}
+                  <div className="flex gap-2 flex-wrap">
+                    {categories.map((cat) => (
+                      <div key={cat} className="relative flex items-center">
                         <button
-                          onClick={() => deleteCategory(cat)}
-                          className="absolute -right-2 -top-2 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
-                          title="Delete Tab"
+                          onClick={() => setFilter(cat)}
+                          className={`px-3 py-1 rounded-lg text-sm font-medium transition ${
+                            filter === cat
+                              ? "bg-amber-600 text-white shadow"
+                              : "bg-white text-gray-600"
+                          }`}
                         >
-                          ×
+                          {cat} ({categoryCounts[cat] || 0})
                         </button>
-                      )}
-                    </div>
-                  ))}
+                        {!defaultCategories.includes(cat) && (
+                          <button
+                            onClick={() => deleteCategory(cat)}
+                            className="absolute -right-1 -top-1 text-xs bg-slate-500 text-white rounded-full w-3 h-3 flex items-center justify-center hover:bg-red-600"
+                            title="Delete Tab"
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* View Mode */}
+                {/* View Mode (kept for layout parity) */}
               </div>
 
               {/* Stats */}
