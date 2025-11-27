@@ -9,7 +9,14 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import TaskCard from "./taskCard";
-import { CalendarDaysIcon, ChevronDownIcon, X } from "lucide-react";
+import {
+  CalendarDaysIcon,
+  ChevronDownIcon,
+  Plus,
+  PlusCircleIcon,
+  PlusSquare,
+  X,
+} from "lucide-react";
 
 type ChecklistItem = {
   id: number;
@@ -281,7 +288,17 @@ export default function TaskBoard() {
                   </div>
 
                   {/* Desktop Filter Tabs */}
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap align-center">
+                    {/* Add Category Button */}
+                    <button
+                      onClick={() => setIsCategoryModalOpen(true)}
+                      className=" bg-green-200 hover:bg-green-300 flex items-center justify-center rounded-sm px-2"
+                    >
+                      <span className="text-green-700">
+                        <Plus />
+                      </span>
+                    </button>
+
                     {categories.map((cat) => (
                       <div key={cat} className="relative flex items-center">
                         <button
@@ -294,6 +311,7 @@ export default function TaskBoard() {
                         >
                           {cat} ({categoryCounts[cat] || 0})
                         </button>
+
                         {!defaultCategories.includes(cat) && (
                           <button
                             onClick={() => deleteCategory(cat)}
