@@ -269,13 +269,10 @@ export default function TaskBoard() {
   const filtered = searched.filter(
     (task) => filter === "All" || task.category === filter
   );
-
   const completedToday = tasks.filter(
     (t) =>
-      t.status === "done" &&
-      new Date(t.id).toDateString() === new Date().toDateString()
+      t.status === "done"
   ).length;
-
   // Reusable form used in the drawer and sidebar
   const CreateTaskForm = (
     <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 shadow-sm">
@@ -580,7 +577,7 @@ export default function TaskBoard() {
 
               {/* Stats */}
               <p className="text-gray-500 text-xs sm:text-sm mb-3">
-                ✅ Completed Today: {completedToday} / {tasks.length}
+                 Completed: {completedToday} / {tasks.length}
               </p>
 
               {/* Tasks grid/list */}

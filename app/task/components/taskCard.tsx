@@ -1,14 +1,11 @@
 // components/TaskCard.tsx
 "use client";
 
-import { useState } from "react";
-import {
-  PencilIcon,
-  TrashIcon,
-  XMarkIcon,
-  ArrowPathIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import TaskTags from "./taskCardComponents/taskTags";
+import TaskHeader from "./taskCardComponents/taskHeader";
+import TaskFooter from "./taskCardComponents/taskFooter";
+import TaskModal from "./taskCardComponents/taskModal";
 
 type ChecklistItem = {
   id: number;
@@ -70,10 +67,16 @@ export default function TaskCard({
   const [editDescription, setEditDescription] = useState(
     task.description || ""
   );
-  const [modalTaskId, setModalTaskId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [checklistInput, setChecklistInput] = useState("");
+  const [isClient, setIsClient] = useState(false);
 
-  // helpers
+  // ensure document is available for portal (used by TaskModal internally)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // start editing (prefill)
   const startEdit = () => {
     setEditId(task.id);
     setEditTitle(task.title);
@@ -191,312 +194,55 @@ export default function TaskCard({
         style={{ minHeight: 120 }}
       >
         {/* Tags above */}
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          {task.project && (
-            <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-purple-300">
-              {task.project}
-            </span>
-          )}
-          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-blue-200">
-            {task.category}
-          </span>
-          <span className="text-xs px-2 py-0.5 rounded-md font-medium text-gray-700 bg-pink-300">
-            {statusBadge(task.status)}
-          </span>
-          <span
-            className={`text-xs px-2 py-0.5 rounded-md font-semibold ${priorityPill(
-              task.priority
-            )}`}
-          >
-            {task.priority
-              ? task.priority[0].toUpperCase() + task.priority.slice(1)
-              : "None"}
-          </span>
-          {task.dueDate && (
-            <span className="ml-auto text-xs text-gray-500">
-              📅 {formatDate(task.dueDate)}
-            </span>
-          )}
-        </div>
+        <TaskTags
+          task={task as any}
+          formatDate={formatDate as any}
+          priorityPill={priorityPill as any}
+          statusBadge={statusBadge as any}
+        />
 
-        {/* Header row: title + actions */}
-        <div className="flex items-start gap-3">
-          <div className="min-w-0 flex-1">
-            {editId === task.id ? (
-              <div className="space-y-2">
-                <input
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
-                  autoFocus
-                  className="w-full px-3 py-2 border rounded-md text-sm bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-200"
-                  placeholder="Task title..."
-                />
-                {/* keep the rest of edit UI (omitted for brevity) */}
-              </div>
-            ) : (
-              <>
-                <h3
-                  className={`text-lg md:text-xl font-semibold text-gray-900 truncate ${
-                    isCompleted ? "line-through text-gray-400" : ""
-                  }`}
-                  onClick={() => setModalTaskId(task.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {task.title}
-                </h3>
-
-                {/* single-line truncated description */}
-                {task.description && (
-                  <p className="text-sm text-gray-600 mt-1 truncate">
-                    {task.description}
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-
-          <div
-            className="flex items-start gap-2 shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => toggleStatus(task.id)}
-              title="Toggle Status"
-              className="p-1 rounded-md hover:bg-gray-100"
-            >
-              <ArrowPathIcon className="h-5 w-5 text-gray-500" />
-            </button>
-            <button
-              onClick={startEdit}
-              title="Edit"
-              className="p-1 rounded-md hover:bg-gray-100"
-            >
-              <PencilIcon className="h-5 w-5 text-gray-500" />
-            </button>
-            <button
-              onClick={() => deleteTask(task.id)}
-              title="Delete"
-              className="p-1 rounded-md hover:bg-gray-100"
-            >
-              <TrashIcon className="h-5 w-5 text-gray-500" />
-            </button>
-          </div>
-        </div>
+        {/* Header row: title + actions (header component handles edit input when editId === task.id) */}
+        <TaskHeader
+          task={task as any}
+          editId={editId as any}
+          editTitle={editTitle as any}
+          setEditTitle={(v: string) => setEditTitle(v)}
+          handleSaveEdit={handleSaveEdit as any}
+          startEdit={startEdit as any}
+          toggleStatus={toggleStatus as any}
+          deleteTask={deleteTask as any}
+          setModalOpen={(v: boolean) => setModalOpen(v)}
+        />
 
         {/* Footer: checklist progress and meta */}
-        {totalCount > 0 && (
-          <div className="mt-4 flex items-center gap-4 justify-between">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-medium text-gray-700">
-                      Checklist
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {percent}% • {completedCount}/{totalCount}
-                    </div>
-                  </div>
-
-                  <div className="w-full bg-slate-300 rounded-full h-2 mt-2 overflow-hidden">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{
-                        width: `${percent}%`,
-                        backgroundColor: "rgba(79, 70, 229, 0.5)", // indigo-600-ish
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="whitespace-nowrap text-xs text-gray-500">
-              {isCompleted ? "Completed" : isDueToday ? "Due Today" : ""}
-            </div>
-          </div>
-        )}
+        <TaskFooter
+          totalCount={totalCount as any}
+          completedCount={completedCount as any}
+          percent={percent as any}
+          isCompleted={isCompleted as any}
+          isDueToday={isDueToday as any}
+        />
       </div>
 
-      {/* Two-panel Modal: left = details, right = checklist */}
-      {modalTaskId === task.id && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setModalTaskId(null)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-lg shadow-lg w-[100%] max-w-4xl p-5"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {task.title}
-              </h3>
-              <button
-                className="p-1"
-                onClick={() => setModalTaskId(null)}
-                aria-label="Close"
-              >
-                <XMarkIcon className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* LEFT: Details */}
-              <div className="space-y-3">
-                <div className="text-sm text-gray-600">
-                  {task.description ? (
-                    <p>{task.description}</p>
-                  ) : (
-                    <p className="text-gray-400">No description provided.</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2 text-sm text-gray-700">
-                  <div>
-                    <span className="text-xs text-gray-500">Project</span>
-                    <div className="mt-1 text-sm text-gray-800">
-                      {task.project || "—"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-xs text-gray-500">Category</span>
-                    <div className="mt-1 text-sm text-gray-800">
-                      {task.category}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-xs text-gray-500">Status</span>
-                    <div className="mt-1 text-sm text-gray-800">
-                      {statusBadge(task.status)}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-xs text-gray-500">Due</span>
-                    <div className="mt-1 text-sm text-gray-800">
-                      {task.dueDate ? formatDate(task.dueDate) : "—"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-xs text-gray-500">Priority</span>
-                    <div
-                      className={`mt-1 inline-block px-2 py-1 text-sm rounded ${priorityPill(
-                        task.priority
-                      )}`}
-                    >
-                      {task.priority
-                        ? task.priority[0].toUpperCase() +
-                          task.priority.slice(1)
-                        : "None"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3">
-                  <button
-                    onClick={startEdit}
-                    className="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteTask(task.id)}
-                    className="px-3 py-2 rounded-md border text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              {/* RIGHT: Checklist */}
-              <div>
-                <div className="mt-0">
-                  <div className="flex gap-2">
-                    <input
-                      value={checklistInput}
-                      onChange={(e) => setChecklistInput(e.target.value)}
-                      placeholder="Add checklist item..."
-                      className="flex-1 px-3 py-2 border rounded-md bg-gray-50 text-sm"
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handleAddChecklistItem()
-                      }
-                    />
-                    <button
-                      onClick={handleAddChecklistItem}
-                      className="px-3 py-2 rounded-md bg-indigo-600 text-white"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-
-                  <ul className="mt-4 space-y-3 max-h-[52vh] overflow-y-auto">
-                    {(task.checklist || []).length === 0 ? (
-                      <li className="text-sm text-gray-400">
-                        No checklist items.
-                      </li>
-                    ) : (
-                      task.checklist!.map((item) => (
-                        <li
-                          key={item.id}
-                          className="flex items-center justify-between"
-                        >
-                          <label className="flex items-center gap-3 min-w-0">
-                            <input
-                              type="checkbox"
-                              checked={item.checked}
-                              onChange={() =>
-                                toggleChecklistItem(task.id, item.id)
-                              }
-                              className="accent-indigo-500"
-                            />
-                            <span
-                              className={`text-sm ${
-                                item.checked
-                                  ? "line-through text-gray-400"
-                                  : "text-gray-700"
-                              } truncate`}
-                            >
-                              {item.text}
-                            </span>
-                          </label>
-                          <button
-                            onClick={() =>
-                              deleteChecklistItem(task.id, item.id)
-                            }
-                            className="p-1 rounded-md hover:bg-gray-100"
-                          >
-                            <TrashIcon className="h-4 w-4 text-gray-400" />
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-
-                  <div className="mt-4 text-xs text-gray-500">
-                    {completedCount}/{totalCount} completed — {percent}%
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                className="px-3 py-2 rounded-md border"
-                onClick={() => setModalTaskId(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal (portal-mounted inside TaskModal) */}
+      <TaskModal
+        isOpen={modalOpen as any}
+        close={() => setModalOpen(false)}
+        task={task as any}
+        checklistInput={checklistInput as any}
+        setChecklistInput={(v: string) => setChecklistInput(v)}
+        handleAddChecklistItem={handleAddChecklistItem as any}
+        toggleChecklistItem={toggleChecklistItem as any}
+        deleteChecklistItem={deleteChecklistItem as any}
+        completedCount={completedCount as any}
+        totalCount={totalCount as any}
+        percent={percent as any}
+        priorityPill={priorityPill as any}
+        statusBadge={statusBadge as any}
+        formatDate={formatDate as any}
+        startEdit={startEdit as any}
+        deleteTask={deleteTask as any}
+      />
     </li>
   );
 }
