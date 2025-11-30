@@ -1,4 +1,3 @@
-// components/TaskCard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -43,6 +42,8 @@ type TaskCardProps = {
   addChecklistItem: (taskId: number, text: string) => void;
   toggleChecklistItem: (taskId: number, itemId: number) => void;
   deleteChecklistItem: (taskId: number, itemId: number) => void;
+
+  onEdit?: (task: Task) => void; // <-- new optional prop
 };
 
 export default function TaskCard({
@@ -55,6 +56,7 @@ export default function TaskCard({
   addChecklistItem,
   toggleChecklistItem,
   deleteChecklistItem,
+  onEdit,
 }: TaskCardProps) {
   const [editId, setEditId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -212,6 +214,7 @@ export default function TaskCard({
           toggleStatus={toggleStatus as any}
           deleteTask={deleteTask as any}
           setModalOpen={(v: boolean) => setModalOpen(v)}
+          onEdit={onEdit} // pass parent onEdit handler through
         />
 
         {/* Footer: checklist progress and meta */}

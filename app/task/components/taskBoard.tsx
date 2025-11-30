@@ -32,7 +32,7 @@ type Task = {
   project?: string;
   status: "todo" | "inprogress" | "done";
   dueDate?: string;
-  priority?: "low" | "medium" | "high";
+  priority?: "low" | "medium" | "high" | "none";
   checklist?: ChecklistItem[];
 };
 
@@ -68,6 +68,9 @@ export default function TaskBoard() {
   // Drawer state for small screens
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // editing state
+  const [editingId, setEditingId] = useState<number | null>(null);
+
   useEffect(() => {
     const savedTasks = localStorage.getItem("tasks");
     const savedCategories = localStorage.getItem("taskCategories");
@@ -102,21 +105,75 @@ export default function TaskBoard() {
     };
   }, [isDrawerOpen]);
 
+  // --- editing helpers ---
+  const openEdit = (task: Task) => {
+    setEditingId(task.id);
+    setTitle(task.title);
+    setDescription(task.description || "");
+    setCategory(task.category || "Uncategorized");
+    setProject(task.project || dummyProjects[0]);
+    setDueDate(task.dueDate || "");
+    setPriority((task.priority as Task["priority"]) || "medium");
+    setNewChecklist(task.checklist ? [...task.checklist] : []);
+    setShowChecklistInput(!!(task.checklist && task.checklist.length));
+    // open drawer for small devices
+    setIsDrawerOpen(true);
+    // on wide screens the right-side form is visible and will be prefilled
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setDescription("");
+    setCategory("Uncategorized");
+    setProject(dummyProjects[0]);
+    setDueDate("");
+    setPriority("medium");
+    setShowChecklistInput(false);
+    setNewChecklist([]);
+    setNewChecklistItemText("");
+    setIsDrawerOpen(false);
+  };
+
   // --- task CRUD helpers ---
   const addTask = () => {
     if (!title.trim()) return;
-    const task: Task = {
-      id: Date.now(),
-      title: title.trim(),
-      description: description.trim() || undefined,
-      category,
-      project,
-      status: "todo",
-      dueDate: dueDate || undefined,
-      priority: priority || "medium",
-      checklist: newChecklist.length ? newChecklist : undefined,
-    };
-    setTasks((prev) => [task, ...prev]);
+
+    if (editingId !== null) {
+      // update existing task
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === editingId
+            ? {
+                ...t,
+                title: title.trim(),
+                description: description.trim() || undefined,
+                category,
+                project,
+                dueDate: dueDate || undefined,
+                priority: priority || "medium",
+                checklist: newChecklist.length ? newChecklist : undefined,
+              }
+            : t
+        )
+      );
+      setEditingId(null);
+      setIsDrawerOpen(false);
+    } else {
+      const task: Task = {
+        id: Date.now(),
+        title: title.trim(),
+        description: description.trim() || undefined,
+        category,
+        project,
+        status: "todo",
+        dueDate: dueDate || undefined,
+        priority: priority || "medium",
+        checklist: newChecklist.length ? newChecklist : undefined,
+      };
+      setTasks((prev) => [task, ...prev]);
+    }
+
     // reset right panel / drawer
     setTitle("");
     setDescription("");
@@ -141,22 +198,39 @@ export default function TaskBoard() {
   };
 
   const deleteTask = (id: number) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+    // if we were editing this task, cancel edit and clear form
+    if (editingId === id) cancelEdit();
   };
 
+  // expanded saveEdit signature used by task cards (keeps compatibility)
   const saveEdit = (
     id: number,
-    title: string,
-    category: string,
-    dueDate: string
+    titleVal: string,
+    categoryVal: string,
+    dueDateVal?: string,
+    projectVal?: string,
+    priorityVal?: string,
+    descriptionVal?: string
   ) => {
-    setTasks(
-      tasks.map((t) =>
+    setTasks((prev) =>
+      prev.map((t) =>
         t.id === id
-          ? { ...t, title, category, dueDate: dueDate || undefined }
+          ? {
+              ...t,
+              title: titleVal,
+              category: categoryVal,
+              dueDate: dueDateVal || undefined,
+              project: projectVal || t.project,
+              // store priority only if provided; otherwise keep existing
+              priority: (priorityVal as Task["priority"]) || t.priority,
+              description: descriptionVal || t.description,
+            }
           : t
       )
     );
+    // if the global panel was being used to edit this task, clear editing state
+    if (editingId === id) cancelEdit();
   };
 
   const addChecklistItemToTask = (taskId: number, text: string) => {
@@ -269,14 +343,14 @@ export default function TaskBoard() {
   const filtered = searched.filter(
     (task) => filter === "All" || task.category === filter
   );
-  const completedToday = tasks.filter(
-    (t) =>
-      t.status === "done"
-  ).length;
+  const completedToday = tasks.filter((t) => t.status === "done").length;
+
   // Reusable form used in the drawer and sidebar
   const CreateTaskForm = (
     <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-gray-100 shadow-sm">
-      <h2 className="text-lg font-semibold mb-4 text-slate-800">Create Task</h2>
+      <h2 className="text-lg font-semibold mb-4 text-slate-800">
+        {editingId ? "Edit Task" : "Create Task"}
+      </h2>
 
       {/* Title */}
       <label className="block text-xs font-medium text-slate-600 mb-1">
@@ -486,25 +560,34 @@ export default function TaskBoard() {
           onClick={addTask}
           className="flex-1 py-2.5 rounded-lg bg-gradient-to-b from-amber-600 to-amber-800 text-white font-medium shadow-md hover:from-indigo-600 hover:to-indigo-700 transition transform hover:-translate-y-0.5"
         >
-          Add Task
+          {editingId ? "Save Changes" : "Add Task"}
         </button>
 
-        <button
-          onClick={() => {
-            setTitle("");
-            setDescription("");
-            setCategory("Uncategorized");
-            setProject(dummyProjects[0]);
-            setDueDate("");
-            setPriority("medium");
-            setShowChecklistInput(false);
-            setNewChecklist([]);
-            setNewChecklistItemText("");
-          }}
-          className="py-2.5 px-3 rounded-lg border border-gray-100 bg-white text-sm text-slate-700 hover:bg-slate-50 transition"
-        >
-          Clear
-        </button>
+        {editingId ? (
+          <button
+            onClick={cancelEdit}
+            className="py-2.5 px-3 rounded-lg border border-gray-100 bg-white text-sm text-slate-700 hover:bg-slate-50 transition"
+          >
+            Cancel
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              setTitle("");
+              setDescription("");
+              setCategory("Uncategorized");
+              setProject(dummyProjects[0]);
+              setDueDate("");
+              setPriority("medium");
+              setShowChecklistInput(false);
+              setNewChecklist([]);
+              setNewChecklistItemText("");
+            }}
+            className="py-2.5 px-3 rounded-lg border border-gray-100 bg-white text-sm text-slate-700 hover:bg-slate-50 transition"
+          >
+            Clear
+          </button>
+        )}
       </div>
     </div>
   );
@@ -577,7 +660,7 @@ export default function TaskBoard() {
 
               {/* Stats */}
               <p className="text-gray-500 text-xs sm:text-sm mb-3">
-                 Completed: {completedToday} / {tasks.length}
+                Completed: {completedToday} / {tasks.length}
               </p>
 
               {/* Tasks grid/list */}
@@ -594,6 +677,7 @@ export default function TaskBoard() {
                     addChecklistItem={addChecklistItemToTask}
                     toggleChecklistItem={toggleChecklistItem}
                     deleteChecklistItem={deleteChecklistItem}
+                    onEdit={openEdit} // <-- pass the openEdit handler
                   />
                 ))}
               </ul>
