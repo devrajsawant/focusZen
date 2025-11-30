@@ -3,7 +3,7 @@ export default function TaskModalDetails(prop: any) {
 
   return (
     <div className="h-full">
-      <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm h-full flex flex-col">
+      <div className="rounded-lg p-5 h-full flex flex-col">
         <h3 className="text-sm font-semibold text-gray-800 mb-3">
           Description
         </h3>

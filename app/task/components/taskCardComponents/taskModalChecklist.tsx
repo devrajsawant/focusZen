@@ -12,8 +12,8 @@ export default function TaskModalChecklist(prop: any) {
   } = prop;
 
   return (
-    <div className="h-full">
-      <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm h-full flex flex-col">
+    <div className="h-full border-t md:border-l border-slate-400">
+      <div className="rounded-lg p-4 h-full flex flex-col">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-800">Checklist</h3>
           <div className="text-xs text-gray-500">{percent}%</div>
@@ -35,13 +35,13 @@ export default function TaskModalChecklist(prop: any) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto ">
           <ul className="space-y-3">
             {task.checklist?.length ? (
               task.checklist.map((item: any) => (
                 <li
                   key={item.id}
-                  className="flex items-start justify-between gap-3 p-2 rounded-md hover:bg-gray-50"
+                  className="flex items-center justify-between gap-3 px-2 rounded-md hover:bg-gray-50"
                 >
                   <label className="flex items-start gap-3 min-w-0">
                     <input
@@ -66,10 +66,10 @@ export default function TaskModalChecklist(prop: any) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => deleteChecklistItem(task.id, item.id)}
-                      className="p-1 rounded-md hover:bg-gray-100"
+                      className="p-1 rounded-md"
                       title="Delete item"
                     >
-                      <span className="text-gray-400">🗑️</span>
+                      <span className="text-red-400 hover:text-red-500">X</span>
                     </button>
                   </div>
                 </li>
@@ -79,21 +79,22 @@ export default function TaskModalChecklist(prop: any) {
             )}
           </ul>
         </div>
-
-        <div className="mt-4">
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div
-              className="h-2 rounded-full transition-all"
-              style={{
-                width: `${percent}%`,
-                backgroundColor: "rgba(79,70,229,0.6)",
-              }}
-            />
+        {totalCount > 0 && (
+          <div className="mt-4">
+            <div className="w-full bg-slate-300 rounded-full h-2 overflow-hidden">
+              <div
+                className="h-2 rounded-full transition-all"
+                style={{
+                  width: `${percent}%`,
+                  backgroundColor: "rgba(79,70,229,0.6)",
+                }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              {completedCount}/{totalCount} completed
+            </div>
           </div>
-          <div className="mt-2 text-xs text-gray-500">
-            {completedCount}/{totalCount} completed
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
