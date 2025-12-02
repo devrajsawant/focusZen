@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <Head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
-        <link rel="apple-touch-icon" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/FocusZenLogo2.png" />
       </Head>
       <body className="flex min-h-screen bg-[#FAF4E4]"  cz-shortcut-listen="true">
         <Sidebar />

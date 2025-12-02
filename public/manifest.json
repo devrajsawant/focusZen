@@ -1,17 +1,21 @@
 {
-    "name": "FocusZen",
-    "short_name": "FocusZen",
-    "start_url": "/dashboard",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#000000",
-    "orientation": "portrait",
-    "icons": [
-  {
-    "src": "/icon.png",
-    "type": "image/png",
-    "sizes": "512x512"
-  }
-]
-  }
-  
+  "name": "FocusZen",
+  "short_name": "FocusZen",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/FocusZenLogo2.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/FocusZenLogo2.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
